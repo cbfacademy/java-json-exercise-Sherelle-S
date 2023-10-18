@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import com.cbfacademy.FilenameException;
+import com.cbfacademy.FileHandler.*;
 import com.cbfacademy.Employee.Employee;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,20 +23,26 @@ public class JSONFileHandler {
 
     public static List<Employee> readFile(String employeeURL) throws FilenameException{
  
+         if(!employeeURL.toLowerCase().endsWith(".json")){
+             throw new FilenameException("This is not valid JSON");
+         }
         Gson gson = new Gson();// new instance of gson
         List<Employee> employees = new ArrayList<>();
 
         try (BufferedReader bf = new BufferedReader(new FileReader(employeeURL))) {
+           
             String inputLine;
             while((inputLine = bf.readLine()) != null){
-                if(isJson(inputLine)){
-                 System.out.println(inputLine);
+                // if(isJson(inputLine)){
+                    
+                //  System.out.println(inputLine);
             Type employeeType = new TypeToken<Employee>() {}.getType();
             Employee employee = gson.fromJson(inputLine, employeeType);
+            // List<Employee> employeeList = gson.fromJson(inputLine, employeeType);
             employees.add(employee);
-            }else{
-                throw new FilenameException("This is not a JSON");
-            }
+            // }else{
+            //     throw new FilenameException("This is not a JSON");
+            // }
                
             }
             //read the content from the file, capture to variable
@@ -49,37 +55,64 @@ public class JSONFileHandler {
     }
     
 
-public static boolean isJson(String inputLine) {
-        Gson gson = new Gson();
-        try {
-            gson.fromJson(inputLine, Object.class);
-            return true;
-        } catch (com.google.gson.JsonSyntaxException ex) {
-            return false;
-        }
-    }
+// public static boolean isJson(String inputLine) {
+//         try {
+//             Gson gson = new Gson();
+//             gson.fromJson(inputLine, Object.class);
+//             return true;
+//         } catch (com.google.gson.JsonSyntaxException ex) {
+//             return false;
+//         }
+//     }
         
-    public static void save(Employee employee, String outputFile) throws FilenameException{
-        List<Employee> previousData = readFile(outputFile);
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile))) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            if(previousData != null){
-                for(Employee emp : previousData){
-                    String line = gson.toJson(emp);
-                   
-                        bw.write(line);
-                        bw.newLine();
-                    }
-                }
-            // Gson gson = new Gson();
-            System.out.println("Buffered writer has started to write.");
-            String employeeJson = gson.toJson(employee);
-            bw.write(employeeJson);
-        } catch (IOException e) {
-            System.out.println("a problem occurred while trying to write your file.");
-            e.printStackTrace();
-        }
+    // public static void save(Employee employee, String outputFile) throws FilenameException{
+    //     List<Employee> previousData = readFile(outputFile);
+    //     try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, true))) {
+    //         Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    //         if(previousData != null){
+    //             for(Employee emp : previousData){
+    //                 String line = gson.toJson(emp);
+    //                     bw.write(line);
+    //                     bw.newLine();
+    //                 }
+    //             }
+    //         // Gson gson = new Gson();
+    //         System.out.println("Buffered writer has started to write.");
+    //         String employeeJson = gson.toJson(employee);
+    //         bw.write(employeeJson);
+    //         bw.newLine();
+    //     } catch (IOException e) {
+    //         System.out.println("a problem occurred while trying to write your file.");
+    //         e.printStackTrace();
+    //     }
+    // }
+    // // return 
+    
+public static void save(Employee employee, String outputFile) throws FilenameException {
+    // List<Employee> previousData = readFile(outputFile);
+    List<Employee> previousData = new ArrayList<>();
+    try {
+        previousData = readFile(outputFile);
+    } catch (FilenameException e) {
+        // TODO: handle exception
     }
+    try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, true))) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        if (previousData != null) {
+            for (Employee emp : previousData) {
+                String line = gson.toJson(emp);
+                bw.write(line);
+                bw.newLine();
+            }
+        }
+        String employeeJson = gson.toJson(employee);
+        bw.write(employeeJson);
+        // bw.newLine();  // Add a newline to separate new data
+    } catch (IOException e) {
+        System.out.println("A problem occurred while trying to write your file.");
+        e.printStackTrace();
+    }
+}
 }
             // then do type token.
             // then fromjson method 

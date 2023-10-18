@@ -6,8 +6,4 @@ public class FilenameException extends Exception{
         super();
     }
     
-    public FilenameException(String message) {
-        super(message);
-    }
-    
 }
